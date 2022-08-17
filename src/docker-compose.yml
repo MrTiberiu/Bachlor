@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+
+  django:
+    build: .
+    container_name: django
+    restart: always
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/usr/src/app/
+      - /tmp/app/mysqld:/run/mysqld
+    networks:
+       - application_network
+ 
+    depends_on:
+      - db
+
+  db:
+    image: mysql
+    container_name: mysqldb
+    restart: always
+    environment:
+     - MYSQL_DATABASE=redrock
+     - MYSQL_ROOT_PASSWORD=root
+    ports:
+      - "3306:3306" 
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - application_network
+      
+networks: 
+  application_network:
+    name: application
+    driver: bridge
+    enable_ipv6: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.238.0/24
+          gateway: 172.16.238.1
+        - subnet: 2001:3984:3989::/64
+          gateway: 2001:3984:3989::1
+   
+
+  
